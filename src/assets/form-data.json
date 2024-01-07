@@ -1,0 +1,17 @@
+[
+    {
+      "name": "firstName",
+      "type": "text",
+      "label": "First Name",
+      "required": true,
+      "minLength": 2,
+      "maxLength": 30
+    },
+    {
+      "name": "email",
+      "type": "email",
+      "label": "Email",
+      "required": true
+    }
+  ]
+  

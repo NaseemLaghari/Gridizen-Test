@@ -1,0 +1,119 @@
+
+Only complex screen and logic comments are mentioned here.
+
+Application Architecture:
+
+- To handle screens we have created seperated stack navigation for each section flow/screens.
+- To seen how navigations are pilled up, see navigation folder -> here you find all the navigation we have utilized in application.
+- Mainly we used stack type and drawer type native navigation, Drawer navigation is backed with custom drawer component in order to handle design and application logic.
+- We also have navigation handler inside the Handler folder to handle initail navigation stacks , where we handle authenticated mounted navigation and unauthenticated mounted nvigations.
+- If user is non authenticated then they can only access registration navigation stacks and login navigation stack, they wont be able to access stacks that design to serve only  authenticated user.
+- For authenticated user all the stacks will serve through drawer navigation which is main navigation in our case.
+- For each flow of logic we have defined new stack and put it in drawer so can be accessable from main stack after login. or alteast we can have a tree.
+- Handler is only handling authencated stack and non authenticated stack, also setting up authencated user states for profile and language etc.
+
+Custom Component:
+
+- We have defined all the custom component inside folder named Components, some are reusable and some are specific to screens. 
+- Bottom tab navigation is also a component inside Components.
+- Text , Radio , Checkbox , Dropdown , Buttons etc , are reuasable and can be use anywhere. see code implementation for example.
+
+Multi language:
+
+- All Text/languages reside in Languages folder each screen has its on language file that feed the all langauge.
+- Language redux carry current selected langauge by default it uses ENGLISH, Current langauge also store in asyc storage incase of application close we retrive from async and refill redux.
+- For Optimization purpose we are using both async and redux for selected langauge.
+
+State Management:
+
+- To handle state global we have used redux toolkit to simplfied global state. 
+- We have also used useState hook inside component/screen to handle screen working logic where we dont need to persist data.
+- For object mutation we have also user immer library. 
+
+API`s and Screens and Assets:
+
+- All the api`s are reside in Services folder.
+- All screens are inside Screens folder.
+- All the images are in assests folder and can be accessable by constant file inside Utilities, 
+- Constant file contain most of the static values used in application .(Do not change any value inside this file otherwise it will effect on entire application)
+
+Registration Process:
+
+- Inner layer component is the parent base for registion process, also contain title and back button functionality.
+- We prefer custom header for screens so that we didnt use the default header , just so we can have full control over.
+- Inner layer and Main Layer both component is used for hosting screen context. but is bit different from each other.
+- For Farmer registration we have faremer registration stack which will contain all the screens that farmer goes through while registration. right now farmer registration stack contain only single screen.
+- When farmer hit next on registion screen it will send request to server to validate given inputs, then change the page state to render next component. this compoennt based appoch for regitration process can be 
+    converted into screens based approach , instead of render different component on same screen we can just navigate user to different screen, anyway thats the current approach, our intention is to change into screens based approach in future.
+- Otp screen is just rendering only right now its not functional, need to integrate OTP API. 
+- On password set screen we optimize all the redux data (all user inputs store in redux) and send it to registration API. on success we poluted the async and farmer profile redux and perform login.
+- async carry current login user token , user type and profile information with profile image link.
+- Same logic is applied for all type of registration 
+
+Home Screen:
+
+- Home screen is a stack navigation which passes through drawer navigation on home stack we have nested stack and screen for retailer , weather and HKSS, 
+- ISP screen is also a seperate stack which also passes through drawer navigation. 
+- Each navigation can be found on navigation folder.
+- On Home screen we have profile dynamic profile component based on user type. 
+
+Profile Screen:
+
+- It is based on user-type render (only user type specific component).
+- Profile sceen component is also based on same component logic used in registration screen which we intend to change into screen based approach in future.
+- On profile edit buttion edit compoenent will render with stored data.
+- On each mount we send request to server to fetch user information.
+
+
+ISP Screen:
+
+- ISP section is only allowed to user-type (farmer) .
+- ISP screen has its own navigation, isp is similar to registration step, but the approach for screen is different, its a screen based approach instead of component based, 
+- When user hit next button it will mount new screen from ISP stack instead of render component on a same screen.
+- ISP Location screen is pre-set the isp location from user registered location.
+- ISP Season will first check the selected season whether user aleady have an ISP in selected season then will render crops to select.
+- ISP Input will ask for all the inputs for each selected crops. its a bit of a complex screen. On screen mount a reqest is made to fetch all the products crops wise accordingly selectd crops .
+(flattenProduct) Function is only to filer products from request array so we can show product name in dropdown tile .
+(inputIndex) State is used for items indexing and total item count for each product.
+(ItemComponent) is to render products item of crops, reference for each  dropdown is handle using inputIndex.
+(handleCropError,handleItemsError,handleProductError) these are the validation function to validate user has select atleast one input item.
+(InputDropdownComponent) is a 2 dimenssional dropdown, first it show categories of products then it show selected category products.
+- Committee Screen will fetch the committee by selected taluka, if any committee exist it will render committee block other wise it will show no commitee text.
+- ISP home screen will send a fetch request to fetch users ISP, Also it will always remount when ever you come from diffrent screen. 
+
+
+Weather Screen:
+
+On mount Screen:
+- we check if user is Retailer so we set his shop cordinates for weather.
+- getCord function is used for device current position(latitude and longitude).
+On success of getCord:
+- getCord function we are calling getAddress function
+- getAddress function is used for getting address from coordinate by using "big data cloud api".
+
+- getDailyForecasting is used for getting daily weather of one week from "open-meteo" wether api by using coordinates with daily weather parametrs as per requirement and sorting data as we need to show.
+On success of getDailyForecasting:
+- Sort and set data of daily weather.
+- we pass coordinates in getHourlyForecasting.
+getHourlyForecasting: In getHourlyForecasting function we send request to "open-meteo" wether api by using coordinates with horly weather parametrs as per requirement and sorting data as we need to show.
+- open-meteo api is returnig data from 5am of current day to 4am of next one week.
+- we sort data from current hour to next 24 hours.
+- and also store data of current hour for current weather.
+getDayFullName: In this function we get index of day from unix timespam and sort full name of day from array.
+timeConverter: The timeConverter function is return hour with am or pm from unix timespam.
+getDay: In this function we get index of day from unix timespam and sort short name of day from array which is used in horly weather.
+WeatherIcon: The WeatherIcon function is used for identifing weather icon/image by using weather code number.
+WeatherName: The WeatherName is retuning weather name from weather code number.
+is_Day: function get system current time and return booleon.
+
+
+Retails List Screen:
+
+On mount Screen:
+- we get registration  location (province, district, taluka and deh) of current user.
+- we call FilterRetailersList function
+handleProvinceChange: In this function 
+FilterRetailersList:The FilterRetailersList is used for fetch Retailers List with the select filters/values.
+filterRetailers: In this function set all filter/values to defualt values (at the time of screen mount).
+
+
